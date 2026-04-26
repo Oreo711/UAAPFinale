@@ -25,6 +25,17 @@ namespace Assets._Project.Develop.Runtime.UI.Gameplay
 
 		protected override Transform PopupLayer => _uiRoot.PopupsLayer;
 
+		public DeployableSelectPopupPresenter OpenDeployableSelectPopup (Action closedCallback = null)
+		{
+			DeployableSelectPopupView view = ViewsFactory.Create<DeployableSelectPopupView>(ViewIDs.DeployableSelectPopup, PopupLayer);
+
+			DeployableSelectPopupPresenter popup = _gameplayPresentersFactory.CreateDeployableSelectPopupPresenter(view);
+
+			OnPopupCreated(popup, view, closedCallback);
+
+			return popup;
+		}
+
 		public WinPopupPresenter OpenWinPopup(Action closedCallback = null)
 		{
 			WinPopupView view = ViewsFactory.Create<WinPopupView>(ViewIDs.WinPopup, PopupLayer);

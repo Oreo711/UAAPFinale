@@ -7,7 +7,9 @@ namespace Assets._Project.Develop.Runtime.Gameplay.States
 {
     public class PreparationState : State, IUpdatableState
     {
-        private readonly GameplayPopupService _popupService;
+        private readonly GameplayPopupService           _popupService;
+
+        private          DeployableSelectPopupPresenter _deployableSelectPopup;
 
         public PreparationState (GameplayPopupService popupService)
         {
@@ -19,11 +21,19 @@ namespace Assets._Project.Develop.Runtime.Gameplay.States
             base.Enter();
 
             _popupService.OpenNextStagePopup();
+            _deployableSelectPopup = _popupService.OpenDeployableSelectPopup();
         }
 
         public void Update(float deltaTime)
         {
 
+        }
+
+        public override void Exit ()
+        {
+            base.Exit();
+
+            _deployableSelectPopup.Hide();
         }
     }
 }

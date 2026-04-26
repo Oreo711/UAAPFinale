@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _moveSpeed: 2
   _rotationSpeed: 900
-  _attackProcessTime: 1.5
-  _attackDelayTime: 0.75
+  _attackProcessTime: 2.163
+  _attackDelayTime: 2.163
   _attackCooldown: 1
   _instantAttackDamage: 25
   _maxHealth: 100
-  _attackRange: 4
+  _attackRange: 5

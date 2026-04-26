@@ -7,6 +7,7 @@ using Assets._Project.Develop.Runtime.Utilities.Reactive;
 using Assets._Project.Develop.Runtime.Utilities.Timer;
 using System;
 using System.Collections.Generic;
+using _Project.Develop.Runtime.Configs.Gameplay;
 using _Project.Develop.Runtime.Configs.Gameplay.Entities;
 using Assets._Project.Develop.Runtime.Gameplay.Features.MainHero;
 using Assets._Project.Develop.Runtime.Gameplay.Features.StagesFeature;
@@ -61,25 +62,26 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.AI
         private AIStateMachine CreateTowerStateMachine (Entity entity)
         {
             PointAndClickExplosionState explosionState  = new PointAndClickExplosionState(entity, _inputService);
-            MineDeployState mineDeployState =
-                new MineDeployState(
+            DeployState deployState =
+                new DeployState(
                 entity,
                 _inputService,
                 _walletService,
                 _playerDataProvider,
-                _configsProviderService.GetConfig<MineConfig>().Cost,
+                _configsProviderService.GetConfig<DeployableCostConfig>().MineCost,
+                _configsProviderService.GetConfig<DeployableCostConfig>().SentryCost,
                 _coroutinesPerformer);
 
             AIStateMachine stateMachine = new AIStateMachine();
 
             stateMachine.AddState(explosionState);
-            stateMachine.AddState(mineDeployState);
+            stateMachine.AddState(deployState);
 
             ICondition explosionToMineDeploy = new FuncCondition(() => _stageProviderService.CurrentStageResult.Value == StageResults.Completed);
             ICondition mineDeployToExplosion = new FuncCondition(() => _stageProviderService.CurrentStageResult.Value == StageResults.Uncompleted);
 
-            stateMachine.AddTransition(explosionState, mineDeployState, explosionToMineDeploy);
-            stateMachine.AddTransition(mineDeployState, explosionState, mineDeployToExplosion);
+            stateMachine.AddTransition(explosionState, deployState, explosionToMineDeploy);
+            stateMachine.AddTransition(deployState, explosionState, mineDeployToExplosion);
 
             return stateMachine;
         }
@@ -160,6 +162,47 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.AI
             _brainsContext.SetFor(entity, brain);
 
             return brain;
+        }
+
+        public StateMachineBrain CreateSentryBrain (Entity entity, ITargetSelector targetSelector)
+        {
+            AIStateMachine stateMachine = CreateSentryStateMachine(entity, targetSelector);
+
+            StateMachineBrain brain = new StateMachineBrain(stateMachine);
+
+            _brainsContext.SetFor(entity, brain);
+
+            return brain;
+        }
+
+        private AIStateMachine CreateSentryStateMachine(Entity entity, ITargetSelector targetSelector)
+        {
+            AIStateMachine combatState = CreateAutoAttackStateMachine(entity);
+            EmptyState     emptyState         = new EmptyState();
+
+            ReactiveVariable<Entity> currentTarget = entity.CurrentTarget;
+
+            ICompositeCondition fromIdleToCombatStateCondition = new CompositeCondition()
+                .Add(new FuncCondition(() => currentTarget.Value != null));
+
+            ICompositeCondition fromCombatToIdleStateCondition = new CompositeCondition()
+                .Add(new FuncCondition(() => currentTarget.Value == null));
+
+            AIStateMachine behavior = new AIStateMachine();
+
+            behavior.AddState(emptyState);
+            behavior.AddState(combatState);
+
+            behavior.AddTransition(emptyState, combatState, fromIdleToCombatStateCondition);
+            behavior.AddTransition(combatState, emptyState, fromCombatToIdleStateCondition);
+
+            FindTargetState findTargetState = new FindTargetState(targetSelector, _entitiesLifeContext, entity);
+            AIParallelState parallelState   = new AIParallelState(findTargetState, behavior);
+
+            AIStateMachine rootStateMachine = new AIStateMachine();
+            rootStateMachine.AddState(parallelState);
+
+            return rootStateMachine;
         }
 
         public StateMachineBrain CreateBomberBrain (Entity entity)

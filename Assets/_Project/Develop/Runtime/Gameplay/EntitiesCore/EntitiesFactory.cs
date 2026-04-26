@@ -1,12 +1,15 @@
 ﻿using _Project.Develop.Runtime.Configs.Gameplay.Entities;
+using _Project.Develop.Runtime.Gameplay.Features.Deploy;
 using _Project.Develop.Runtime.Gameplay.Features.Mines;
 using _Project.Develop.Runtime.Gameplay.Features.Spawn;
 using Assets._Project.Develop.Runtime.Configs.Gameplay.Entities;
 using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore.Mono;
+using Assets._Project.Develop.Runtime.Gameplay.Features.AI;
 using Assets._Project.Develop.Runtime.Gameplay.Features.ApplyDamage;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Attack;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Attack.Shoot;
 using Assets._Project.Develop.Runtime.Gameplay.Features.ContactTakeDamage;
+using Assets._Project.Develop.Runtime.Gameplay.Features.Deploy;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Explosion;
 using Assets._Project.Develop.Runtime.Gameplay.Features.InputFeature;
 using Assets._Project.Develop.Runtime.Gameplay.Features.LifeCycle;
@@ -56,6 +59,8 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
                 .AddWorldPointExplosionRequest()
                 .AddWorldPointExplosionEvent()
                 .AddMineDeployRequest()
+                .AddSentryDeployRequest()
+                .AddCurrentDeployable(new ReactiveVariable<Deployables>(Deployables.Sentry))
                 .AddTakeDamageRequest()
                 .AddTakeDamageEvent()
                 .AddIsDead();
@@ -77,7 +82,57 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
                   .AddSystem(new DeathSystem())
                   .AddSystem(new SelfReleaseSystem(_entitiesLifeContext))
                   .AddSystem(new WorldPointExplosionSystem(_collidersRegistryService))
-                  .AddSystem(new MineDeploySystem(this, _configsProviderService.GetConfig<MineConfig>(), _entitiesLifeContext));
+                  .AddSystem(new MineDeploySystem(this, _configsProviderService.GetConfig<MineConfig>(), _entitiesLifeContext))
+                  .AddSystem(new SentryDeploySystem(
+                      this,
+                      _configsProviderService.GetConfig<SentryConfig>(),
+                      _entitiesLifeContext,
+                      _container.Resolve<BrainsFactory>()));
+
+            return entity;
+        }
+
+        public Entity CreateSentry (Vector3 position, SentryConfig config)
+        {
+            Entity entity = CreateEmpty();
+
+            _monoEntitiesFactory.Create(entity, position, "Entities/Sentry");
+
+            entity
+                .AddRotationDirection()
+                .AddRotationSpeed(new ReactiveVariable<float>(config.RotationSpeed))
+                .AddCurrentTarget()
+                .AddAttackRange(new ReactiveVariable<float>(config.AttackRange))
+                .AddAttackProcessInitialTime(new ReactiveVariable<float>(config.AttackProcessTime))
+                .AddAttackProcessCurrentTime()
+                .AddInAttackProcess()
+                .AddStartAttackRequest()
+                .AddStartAttackEvent()
+                .AddEndAttackEvent()
+                .AddAttackDelayTime(new ReactiveVariable<float>(config.AttackDelayTime))
+                .AddAttackDelayEndEvent()
+                .AddInstantAttackDamage(new ReactiveVariable<float>(config.InstantAttackDamage))
+                .AddAttackCooldownInitialTime(new ReactiveVariable<float>(config.AttackCooldown))
+                .AddAttackCooldownCurrentTime()
+                .AddInAttackCooldown();
+
+            ICompositeCondition canStartAttack = new CompositeCondition()
+                .Add(new FuncCondition(() => entity.InAttackProcess.Value == false))
+                .Add(new FuncCondition(() => entity.InAttackCooldown.Value == false));
+
+            ICompositeCondition canRotate = new CompositeCondition()
+                .Add(new FuncCondition(() => true));
+
+            entity.AddCanStartAttack(canStartAttack)
+                  .AddCanRotate(canRotate);
+
+            entity.AddSystem(new RigidbodyRotationSystem())
+                  .AddSystem(new StartAttackSystem())
+                  .AddSystem(new AttackProcessTimerSystem())
+                  .AddSystem(new AttackDelayEndTriggerSystem())
+                  .AddSystem(new InstantShootSystem(this))
+                  .AddSystem(new EndAttackSystem())
+                  .AddSystem(new AttackCooldownTimerSystem());
 
             return entity;
         }
@@ -413,11 +468,11 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
                 .AddRotationDirection(new ReactiveVariable<Vector3>(direction))
                 .AddRotationSpeed(new ReactiveVariable<float>(9999))
                 .AddIsDead()
-                .AddContactsDetectingMask(Layers.CharactersMask | Layers.EnviromentMask)
+                .AddContactsDetectingMask(Layers.CharactersMask | Layers.EnvironmentMask)
                 .AddContactCollidersBuffer(new Buffer<Collider>(64))
                 .AddContactEntitiesBuffer(new Buffer<Entity>(64))
                 .AddBodyContactDamage(new ReactiveVariable<float>(damage))
-                .AddDeathMask(Layers.EnviromentMask)
+                .AddDeathMask(Layers.EnvironmentMask)
                 .AddIsTouchDeathMask()
                 .AddIsTouchAnotherTeam()
                 .AddTeam(new ReactiveVariable<Teams>(owner.Team.Value));

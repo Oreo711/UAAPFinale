@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets._Project.Develop.Runtime.UI.Core
 {
-    public abstract class PopupPresenterBase : IPresenter
+    public abstract class   PopupPresenterBase : IPresenter
     {
         public event Action<PopupPresenterBase> CloseRequest;
 

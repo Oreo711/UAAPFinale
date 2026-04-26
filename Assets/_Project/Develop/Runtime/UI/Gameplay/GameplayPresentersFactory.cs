@@ -1,5 +1,6 @@
 using _Project.Develop.Runtime.UI.CommonViews;
 using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore;
+using Assets._Project.Develop.Runtime.Gameplay.Features.MainHero;
 using Assets._Project.Develop.Runtime.Gameplay.Features.StagesFeature;
 using Assets._Project.Develop.Runtime.Gameplay.Infrastructure;
 using Assets._Project.Develop.Runtime.Infrastructure.DI;
@@ -23,6 +24,14 @@ namespace Assets._Project.Develop.Runtime.UI.Gameplay
 		{
 			_container         = container;
 			_gameplayInputArgs = gameplayInputArgs;
+		}
+
+		public DeployableSelectPopupPresenter CreateDeployableSelectPopupPresenter (DeployableSelectPopupView view)
+		{
+			return new DeployableSelectPopupPresenter(
+				_container.Resolve<ICoroutinesPerformer>(),
+				view,
+				_container.Resolve<MainHeroHolderService>());
 		}
 
 		public NextStagePopupPresenter CreateNextStagePopupPresenter (ButtonWithTextView view)

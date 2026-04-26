@@ -5,6 +5,7 @@ using Assets._Project.Develop.Runtime.Utilities.AssetsManagment;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Develop.Runtime.Configs.Gameplay;
 using _Project.Develop.Runtime.Configs.Gameplay.Entities;
 using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore;
 using UnityEngine;
@@ -24,6 +25,8 @@ namespace Assets._Project.Develop.Runtime.Utilities.ConfigsManagment
             {typeof(TowerConfig), "Configs/Gameplay/Entities/Characters/TowerConfig"},
             {typeof(BomberConfig), "Configs/Gameplay/Entities/Characters/BomberConfig"},
             {typeof(MineConfig), "Configs/Gameplay/Entities/MineConfig"},
+            {typeof(SentryConfig), "Configs/Gameplay/Entities/SentryConfig"},
+            {typeof(DeployableCostConfig), "Configs/Gameplay/DeployableCostConfig"},
             {typeof(RangerConfig), "Configs/Gameplay/Entities/Characters/RangerConfig"}
         };
 
