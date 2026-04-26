@@ -1,0 +1,57 @@
+using System.Collections.Generic;
+using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore;
+using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore.Systems;
+using Assets._Project.Develop.Runtime.Gameplay.Features.TeamsFeature;
+using Assets._Project.Develop.Runtime.Utilities.Reactive;
+using UnityEngine;
+
+
+namespace Assets._Project.Develop.Runtime.Gameplay.Features.Explosion
+{
+	public class CollisionExplosionSystem : IInitializableSystem, IUpdatableSystem
+	{
+		private ReactiveVariable<float> _explosionDamage;
+		private ReactiveVariable<float> _blastRadius;
+		private Transform               _transform;
+		private ReactiveVariable<bool>  _markedForDeath;
+		private Entity                  _entity;
+
+		private readonly CollidersRegistryService _collidersRegistryService;
+
+		public CollisionExplosionSystem (CollidersRegistryService collidersRegistryService)
+		{
+			_collidersRegistryService = collidersRegistryService;
+		}
+
+
+		public void OnInit (Entity entity)
+		{
+			_explosionDamage = entity.ExplosionDamage;
+			_blastRadius     = entity.BlastRadius;
+			_transform       = entity.Transform;
+			_markedForDeath  = entity.MarkedForDeath;
+			_entity          = entity;
+		}
+
+		public void OnUpdate (float deltaTime)
+		{
+			Collider[] collidersWithinRadius = Physics.OverlapSphere(
+				_transform.position,
+				_blastRadius.Value,
+				LayerMask.GetMask("Characters"));
+
+			if (collidersWithinRadius.Length > 0)
+			{
+				foreach (Collider hitCollider in collidersWithinRadius)
+				{
+					Entity entity = _collidersRegistryService.GetBy(hitCollider);
+
+					if (EntitiesHelper.TryTakeDamageFrom(_entity, entity, _explosionDamage.Value))
+					{
+						_markedForDeath.Value = true;
+					}
+				}
+			}
+			}
+		}
+}
