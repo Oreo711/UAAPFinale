@@ -24,7 +24,9 @@ namespace Assets._Project.Develop.Runtime.UI.Core
             {ViewIDs.SimpleHealthBar, "UI/Gameplay/HealthBars/SimpleHealthBar" },
             {ViewIDs.MainHeroHealthBar, "UI/Gameplay/HealthBars/HeroHealthBar" },
             {ViewIDs.NextStagePopup, "UI/Gameplay/Stages/NextStagePopup"},
-            {ViewIDs.DeployableSelectPopup, "UI/Gameplay/DeployableSelectionPopup"}
+            {ViewIDs.DeployableSelectPopup, "UI/Gameplay/DeployableSelectionPopup"},
+            {ViewIDs.UpgradableStatView, "UI/MainMenu/Stats/UpgradableStatView"},
+            {ViewIDs.StatsUpgradePopupView, "UI/MainMenu/Stats/StatsUpgradePopup"}
         };
 
         public ViewsFactory(ResourcesAssetsLoader resourcesAssetsLoader)
@@ -44,7 +46,7 @@ namespace Assets._Project.Develop.Runtime.UI.Core
             if (view == null)
                 throw new InvalidOperationException($"Not found {typeof(TView)} component on view instance");
 
-            return view;
+                return view;
         }
 
         public void Release<TView>(TView view) where TView : MonoBehaviour, IView

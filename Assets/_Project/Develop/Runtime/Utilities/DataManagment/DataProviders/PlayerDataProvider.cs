@@ -4,6 +4,8 @@ using Assets._Project.Develop.Runtime.Utilities.ConfigsManagment;
 using Assets._Project.Develop.Runtime.Utilities.Reactive;
 using System;
 using System.Collections.Generic;
+using _Project.Develop.Runtime.Gameplay.Features.Stats;
+
 
 namespace Assets._Project.Develop.Runtime.Utilities.DataManagment.DataProviders
 {
@@ -23,8 +25,19 @@ namespace Assets._Project.Develop.Runtime.Utilities.DataManagment.DataProviders
             return new PlayerData()
             {
                 WalletData = InitWalletData(),
-                CompletedLevels = new()
+                CompletedLevels = new(),
+                StatsUpgradesLevels = InitStatsUpgradesLevels()
             };
+        }
+
+        private Dictionary<StatTypes, int> InitStatsUpgradesLevels()
+        {
+            Dictionary<StatTypes, int> statUpgradesLevels = new();
+
+            foreach (StatTypes statType in Enum.GetValues(typeof(StatTypes)))
+                statUpgradesLevels.Add(statType, 1);
+
+            return statUpgradesLevels;
         }
 
         private Dictionary<CurrencyTypes, int> InitWalletData()

@@ -31,6 +31,12 @@ namespace Assets._Project.Develop.Runtime.UI.Gameplay
 
 			_view.MineButtonClicked   += OnMineButtonClicked;
 			_view.SentryButtonClicked += OnSentryButtonClicked;
+			_view.PuddleButtonClicked += OnPuddleButtonClicked;
+		}
+
+		private void OnPuddleButtonClicked ()
+		{
+			_mainHeroHoldersService.MainHero.CurrentDeployable.Value = Deployables.Puddle;
 		}
 
 		private void OnMineButtonClicked ()
@@ -48,7 +54,8 @@ namespace Assets._Project.Develop.Runtime.UI.Gameplay
 			base.Dispose();
 
 			_view.MineButtonClicked -= OnMineButtonClicked;
-			_view.MineButtonClicked -= OnSentryButtonClicked;
+			_view.SentryButtonClicked -= OnSentryButtonClicked;
+			_view.PuddleButtonClicked -= OnPuddleButtonClicked;
 		}
 	}
 }

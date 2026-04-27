@@ -16,6 +16,11 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.LifeCycle
         public ReactiveVariable<float> Value;
     }
 
+    public class HealOnWaveStart : IEntityComponent
+    {
+        public ReactiveVariable<float> Value;
+    }
+
     public class HealthBarPoint : IEntityComponent
     {
         public Transform Value;

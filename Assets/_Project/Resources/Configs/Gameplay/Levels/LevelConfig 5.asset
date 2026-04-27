@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: LevelConfig 5
   m_EditorClassIdentifier: 
   _stageConfigs:
+  - {fileID: 11400000, guid: af56caa4adae5314fb01eecab3a49075, type: 2}
+  - {fileID: 11400000, guid: 75e17cf2c62b38e46a2c1a98b5002fd6, type: 2}
   - {fileID: 11400000, guid: dfa2ff8c0701b8049b81f45dd02b9c2f, type: 2}
-  - {fileID: 11400000, guid: dfa2ff8c0701b8049b81f45dd02b9c2f, type: 2}
-  - {fileID: 11400000, guid: dfa2ff8c0701b8049b81f45dd02b9c2f, type: 2}
-  _winReward: 50
+  _winGoldReward: 30
+  _winDiamondReward: 10

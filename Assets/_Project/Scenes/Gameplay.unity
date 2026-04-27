@@ -707,7 +707,7 @@ GameObject:
   - component: {fileID: 918592568}
   - component: {fileID: 918592567}
   m_Layer: 9
-  m_Name: Mine Deploy Zone
+  m_Name: Deploy Zone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

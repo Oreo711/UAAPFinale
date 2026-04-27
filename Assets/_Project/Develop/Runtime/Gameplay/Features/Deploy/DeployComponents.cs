@@ -16,6 +16,11 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Deploy
 		public ReactiveEvent<Vector3> Value;
 	}
 
+	public class PuddleDeployRequest : IEntityComponent
+	{
+		public ReactiveEvent<Vector3> Value;
+	}
+
 	public class CurrentDeployable : IEntityComponent
 	{
 		public ReactiveVariable<Deployables> Value;

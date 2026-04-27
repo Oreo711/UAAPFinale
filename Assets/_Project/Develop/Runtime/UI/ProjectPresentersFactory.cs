@@ -1,6 +1,8 @@
-﻿using _Project.Develop.Runtime.UI.CommonViews;
+﻿using _Project.Develop.Runtime.Gameplay.Features.Stats;
+using _Project.Develop.Runtime.UI.CommonViews;
 using _Project.Develop.Runtime.UI.MainMenu.Stats;
 using Assets._Project.Develop.Runtime.Configs.Meta.Wallet;
+using Assets._Project.Develop.Runtime.Gameplay.Features.Attack;
 using Assets._Project.Develop.Runtime.Infrastructure.DI;
 using Assets._Project.Develop.Runtime.Meta.Features.LevelsProgression;
 using Assets._Project.Develop.Runtime.Meta.Features.Stats;
@@ -12,6 +14,7 @@ using Assets._Project.Develop.Runtime.UI.LevelsMenuPopup;
 using Assets._Project.Develop.Runtime.UI.Wallet;
 using Assets._Project.Develop.Runtime.Utilities.ConfigsManagment;
 using Assets._Project.Develop.Runtime.Utilities.CoroutinesManagment;
+using Assets._Project.Develop.Runtime.Utilities.DataManagment.DataProviders;
 using Assets._Project.Develop.Runtime.Utilities.Reactive;
 using Assets._Project.Develop.Runtime.Utilities.SceneManagment;
 
@@ -24,6 +27,19 @@ namespace Assets._Project.Develop.Runtime.UI
         public ProjectPresentersFactory(DIContainer container)
         {
             _container = container;
+        }
+
+        public UpgradableStatPresenter CreateUpgradableStatPresenter (UpgradableStatView view, StatTypes statType)
+        {
+            return new UpgradableStatPresenter(
+                view,
+                statType,
+                _container.Resolve<ConfigsProviderService>().GetConfig<StatsViewConfig>(),
+                _container.Resolve<StatsUpgradeService>(),
+                _container.Resolve<WalletService>(),
+                _container.Resolve<PlayerDataProvider>(),
+                _container.Resolve<ConfigsProviderService>().GetConfig<CurrencyIconsConfig>(),
+                _container.Resolve<ICoroutinesPerformer>());
         }
 
         public CurrencyPresenter CreateCurrencyPresenter(
@@ -74,11 +90,11 @@ namespace Assets._Project.Develop.Runtime.UI
                 view);
         }
 
-        public StatsPresenter CreateStatsPresenter(RatioView view)
+        public WinratePresenter CreateStatsPresenter(RatioView view)
         {
-            return new StatsPresenter(
+            return new WinratePresenter(
                 view,
-                _container.Resolve<StatsService>());
+                _container.Resolve<WinrateService>());
         }
     }
 }

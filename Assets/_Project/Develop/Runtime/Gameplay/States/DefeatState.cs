@@ -15,7 +15,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.States
         private readonly SceneSwitcherService _sceneSwitcherService;
         private readonly ICoroutinesPerformer _coroutinesPerformer;
         private readonly PlayerDataProvider   _playerDataProvider;
-        private readonly StatsService         _statsService;
+        private readonly WinrateService         _winrateService;
         private readonly GameplayPopupService _popupService;
 
         public DefeatState(
@@ -23,7 +23,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.States
             SceneSwitcherService sceneSwitcherService,
             ICoroutinesPerformer coroutinesPerformer,
             PlayerDataProvider playerDataProvider,
-            StatsService statsService,
+            WinrateService winrateService,
             GameplayPopupService popupService
         ) : base(inputService)
         {
@@ -31,7 +31,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.States
             _sceneSwitcherService = sceneSwitcherService;
             _coroutinesPerformer  = coroutinesPerformer;
             _playerDataProvider   = playerDataProvider;
-            _statsService         = statsService;
+            _winrateService         = winrateService;
             _popupService         = popupService;
         }
 
@@ -41,7 +41,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.States
 
             _popupService.OpenDefeatPopup();
 
-            _statsService.IncrementLosses();
+            _winrateService.IncrementLosses();
 
             _coroutinesPerformer.StartCoroutine(_playerDataProvider.SaveAsync());
         }

@@ -16,6 +16,7 @@ namespace _Project.Develop.Runtime.Configs.Gameplay.Entities
 		[SerializeField, Min(0)] private float _instantAttackDamage = 50;
 		[SerializeField, Min(0)] private float _maxHealth           = 100;
 		[SerializeField, Min(0)] private float _attackRange         = 5;
+		[SerializeField, Min(0)] private float _spawnProcessTime;
 
 		public float MoveSpeed           => _moveSpeed;
 		public float RotationSpeed       => _rotationSpeed;
@@ -25,5 +26,6 @@ namespace _Project.Develop.Runtime.Configs.Gameplay.Entities
 		public float InstantAttackDamage => _instantAttackDamage;
 		public float MaxHealth           => _maxHealth;
 		public float AttackRange         => _attackRange;
+		public float SpawnProcessTime    => _spawnProcessTime;
 	}
 }

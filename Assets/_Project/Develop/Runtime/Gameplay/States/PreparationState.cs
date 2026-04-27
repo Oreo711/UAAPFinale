@@ -33,7 +33,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.States
         {
             base.Exit();
 
-            _deployableSelectPopup.Hide();
+            _deployableSelectPopup.Close();
         }
     }
 }

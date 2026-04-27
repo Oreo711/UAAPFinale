@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using _Project.Develop.Runtime.Configs.Gameplay;
 using _Project.Develop.Runtime.Configs.Gameplay.Entities;
 using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore;
+using Assets._Project.Develop.Runtime.Gameplay.Features.Attack;
 using UnityEngine;
 
 namespace Assets._Project.Develop.Runtime.Utilities.ConfigsManagment
@@ -26,8 +27,11 @@ namespace Assets._Project.Develop.Runtime.Utilities.ConfigsManagment
             {typeof(BomberConfig), "Configs/Gameplay/Entities/Characters/BomberConfig"},
             {typeof(MineConfig), "Configs/Gameplay/Entities/MineConfig"},
             {typeof(SentryConfig), "Configs/Gameplay/Entities/SentryConfig"},
+            {typeof(PuddleConfig), "Configs/Gameplay/Entities/PuddleConfig"},
             {typeof(DeployableCostConfig), "Configs/Gameplay/DeployableCostConfig"},
-            {typeof(RangerConfig), "Configs/Gameplay/Entities/Characters/RangerConfig"}
+            {typeof(RangerConfig), "Configs/Gameplay/Entities/Characters/RangerConfig"},
+            {typeof(StatsUpgradeConfig), "Configs/Meta/Stats/StatsUpgradeConfig"},
+            {typeof(StatsViewConfig), "Configs/Meta/Stats/StatsViewConfig"}
         };
 
         public ResourcesConfigsLoader(ResourcesAssetsLoader resources)

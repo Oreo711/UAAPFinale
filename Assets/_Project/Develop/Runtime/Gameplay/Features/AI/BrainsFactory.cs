@@ -68,8 +68,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.AI
                 _inputService,
                 _walletService,
                 _playerDataProvider,
-                _configsProviderService.GetConfig<DeployableCostConfig>().MineCost,
-                _configsProviderService.GetConfig<DeployableCostConfig>().SentryCost,
+                _configsProviderService.GetConfig<DeployableCostConfig>(),
                 _coroutinesPerformer);
 
             AIStateMachine stateMachine = new AIStateMachine();

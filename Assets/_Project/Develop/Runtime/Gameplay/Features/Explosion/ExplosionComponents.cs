@@ -10,6 +10,16 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Explosion
 		  public ReactiveVariable<float> Value;
 	  }
 
+	public class ExplosionDamageMultiplier : IEntityComponent
+	{
+		public ReactiveVariable<float> Value;
+	}
+
+	public class ModifiedExplosionDamage : IEntityComponent
+	{
+		public ReactiveVariable<float> Value;
+	}
+
 	public class BlastRadius : IEntityComponent
 	{
 		public ReactiveVariable<float> Value;

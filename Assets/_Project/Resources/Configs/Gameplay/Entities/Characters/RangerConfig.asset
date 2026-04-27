@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c892e6f44a94404aa3807cd9af71c154, type: 3}
   m_Name: RangerConfig
   m_EditorClassIdentifier: 
-  _moveSpeed: 2
+  _moveSpeed: 1.5
   _rotationSpeed: 900
   _attackProcessTime: 2.163
   _attackDelayTime: 2.163

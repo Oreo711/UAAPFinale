@@ -1,6 +1,8 @@
 ﻿using Assets._Project.Develop.Runtime.Configs.Gameplay.Stages;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
+
 
 namespace Assets._Project.Develop.Runtime.Configs.Gameplay.Levels
 {
@@ -8,9 +10,11 @@ namespace Assets._Project.Develop.Runtime.Configs.Gameplay.Levels
     public class LevelConfig : ScriptableObject
     {
         [SerializeField] private List<StageConfig> _stageConfigs;
-        [SerializeField] private int _winReward;
+        [SerializeField] private int               _winGoldReward;
+        [SerializeField] private int               _winDiamondReward;
 
-        public IReadOnlyList<StageConfig> StageConfigs => _stageConfigs;
-        public int WinReward => _winReward;
+        public IReadOnlyList<StageConfig> StageConfigs     => _stageConfigs;
+        public int                        WinGoldReward    => _winGoldReward;
+        public int                        WinDiamondReward => _winDiamondReward;
     }
 }

@@ -10,14 +10,22 @@ namespace Assets._Project.Develop.Runtime.UI.Gameplay
 	{
 		public event Action MineButtonClicked;
 		public event Action SentryButtonClicked;
+		public event Action PuddleButtonClicked;
 
 		[SerializeField] private Button _mineButton;
 		[SerializeField] private Button _sentryButton;
+		[SerializeField] private Button _puddleButton;
 
 		private void OnEnable ()
 		{
 			_mineButton.onClick.AddListener(OnMineButtonClicked);
 			_sentryButton.onClick.AddListener(OnSentryButtonClicked);
+			_puddleButton.onClick.AddListener(OnPuddleButtonClicked);
+		}
+
+		private void OnPuddleButtonClicked ()
+		{
+			PuddleButtonClicked?.Invoke();
 		}
 
 		private void OnMineButtonClicked ()

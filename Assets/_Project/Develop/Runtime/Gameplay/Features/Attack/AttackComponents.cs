@@ -1,4 +1,5 @@
 ﻿using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore;
+using Assets._Project.Develop.Runtime.Gameplay.Features.Attack.Shoot;
 using Assets._Project.Develop.Runtime.Utilities.Conditions;
 using Assets._Project.Develop.Runtime.Utilities.Reactive;
 using UnityEngine;
@@ -88,5 +89,15 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Attack
     public class AttackRange : IEntityComponent
     {
         public ReactiveVariable<float> Value;
+    }
+
+    public class DamageToSpawnedEnemies : IEntityComponent
+    {
+        public ReactiveVariable<float> Value;
+    }
+
+    public class ProjectileType : IEntityComponent
+    {
+        public ReactiveVariable<ProjectileTypes> Value;
     }
 }

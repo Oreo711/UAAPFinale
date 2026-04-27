@@ -30,7 +30,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Explosion
 
 		public void OnInit (Entity entity)
 		{
-			_explosionDamage  = entity.ExplosionDamage;
+			_explosionDamage  = entity.ModifiedExplosionDamage;
 			_blastRadius      = entity.BlastRadius;
 			_explosionRequest = entity.WorldPointExplosionRequest;
 			_explosionEvent   = entity.WorldPointExplosionEvent;

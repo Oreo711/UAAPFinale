@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets._Project.Develop.Runtime.UI.Core
 {
-    public abstract class   PopupPresenterBase : IPresenter
+    public abstract class PopupPresenterBase : IPresenter
     {
         public event Action<PopupPresenterBase> CloseRequest;
 
@@ -62,7 +62,7 @@ namespace Assets._Project.Develop.Runtime.UI.Core
 
         protected void OnCloseRequest () => Close();
 
-        protected void Close() => CloseRequest?.Invoke(this);
+        public void Close() => CloseRequest?.Invoke(this);
 
         private IEnumerator ProcessShow()
         {

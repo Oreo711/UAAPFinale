@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6214fe19c8541d28dab248eb9937cb7, type: 3}
+  m_Name: StatsUpgradeConfig
+  m_EditorClassIdentifier: 
+  _stats:
+  - <Type>k__BackingField: 0
+    <StatValues>k__BackingField:
+    - 1
+    - 1.3
+    - 1.6
+    - 2
+    <CostType>k__BackingField: 1
+    <UpgradeToNextLevelCost>k__BackingField: 14000000190000001e000000
+  - <Type>k__BackingField: 1
+    <StatValues>k__BackingField:
+    - 0
+    - 25
+    - 50
+    - 100
+    <CostType>k__BackingField: 1
+    <UpgradeToNextLevelCost>k__BackingField: 050000000a0000000f000000
+  - <Type>k__BackingField: 2
+    <StatValues>k__BackingField:
+    - 0
+    - 20
+    - 35
+    - 50
+    <CostType>k__BackingField: 1
+    <UpgradeToNextLevelCost>k__BackingField: 0f0000001400000019000000

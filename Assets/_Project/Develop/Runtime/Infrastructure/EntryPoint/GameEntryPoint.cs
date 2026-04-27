@@ -50,8 +50,6 @@ namespace Assets._Project.Develop.Runtime.Infrastructure.EntryPoint
             else
                 playerDataProvider.Reset();
 
-            yield return new WaitForSeconds(1f);
-            
             loadingScreen.Hide();
 
             yield return sceneSwitcherService.ProcessSwitchTo(Scenes.MainMenu);

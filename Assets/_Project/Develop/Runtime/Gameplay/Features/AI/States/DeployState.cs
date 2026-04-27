@@ -1,4 +1,5 @@
 using System;
+using _Project.Develop.Runtime.Configs.Gameplay;
 using _Project.Develop.Runtime.Gameplay.Features.Deploy;
 using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Deploy;
@@ -21,21 +22,31 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.AI.States
 		private readonly PlayerDataProvider            _playerDataProvider;
 		private readonly int                           _mineCost;
 		private readonly int                           _sentryCost;
+		private readonly int                           _puddleCost;
 		private readonly ICoroutinesPerformer          _coroutinesPerformer;
 		private          ReactiveEvent<Vector3>        _mineDeployRequest;
 		private          ReactiveEvent<Vector3>        _sentryDeployRequest;
+		private          ReactiveEvent<Vector3>        _puddleDeployRequest;
 		private          ReactiveVariable<Deployables> _currentDeployable;
 
-		public DeployState (Entity entity, IInputService inputService, WalletService wallet, PlayerDataProvider playerDataProvider, int mineCost, int sentryCost, ICoroutinesPerformer coroutinesPerformer)
+		public DeployState (
+			Entity entity,
+			IInputService inputService,
+			WalletService wallet,
+			PlayerDataProvider playerDataProvider,
+			DeployableCostConfig costConfig,
+			ICoroutinesPerformer coroutinesPerformer)
 		{
 			_inputService        = inputService;
 			_wallet              = wallet;
 			_playerDataProvider  = playerDataProvider;
-			_mineCost            = mineCost;
-			_sentryCost          = sentryCost;
+			_mineCost            = costConfig.MineCost;
+			_sentryCost          = costConfig.SentryCost;
+			_puddleCost          = costConfig.PuddleCost;
 			_coroutinesPerformer = coroutinesPerformer;
 			_mineDeployRequest   = entity.MineDeployRequest;
 			_sentryDeployRequest = entity.SentryDeployRequest;
+			_puddleDeployRequest = entity.PuddleDeployRequest;
 			_currentDeployable   = entity.CurrentDeployable;
 		}
 
@@ -55,7 +66,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.AI.States
 
 				if (Physics.Raycast(ray, out RaycastHit hitInfo))
 				{
-					if (hitInfo.collider.gameObject.layer == LayerMask.NameToLayer("Mine Deploy Surface"))
+					if (hitInfo.collider.gameObject.layer == LayerMask.NameToLayer("Deploy Surface"))
 					{
 						switch (_currentDeployable.Value)
 						{
@@ -64,7 +75,6 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.AI.States
 								_mineDeployRequest.Invoke(mineDeployPoint);
 
 								_wallet.Spend(CurrencyTypes.Gold, _mineCost);
-								_coroutinesPerformer.StartCoroutine(_playerDataProvider.SaveAsync());
 								break;
 
 							case Deployables.Sentry:
@@ -72,13 +82,18 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.AI.States
 								_sentryDeployRequest.Invoke(sentryDeployPoint);
 
 								_wallet.Spend(CurrencyTypes.Gold, _sentryCost);
-								_coroutinesPerformer.StartCoroutine(_playerDataProvider.SaveAsync());
 								break;
 
+							case Deployables.Puddle:
+								Vector3 puddleDeployPoint = new Vector3(hitInfo.point.x, 0, hitInfo.point.z);
+								_puddleDeployRequest.Invoke(puddleDeployPoint);
+
+								_wallet.Spend(CurrencyTypes.Gold, _puddleCost);
+								break;
 							default:
 								throw new ArgumentException("This type of deployable is not supported.");
 						}
-
+						_coroutinesPerformer.StartCoroutine(_playerDataProvider.SaveAsync());
 					}
 				}
 			}

@@ -22,14 +22,14 @@ namespace Assets._Project.Develop.Runtime.Gameplay.States
         private readonly PlayerDataProvider       _playerDataProvider;
         private readonly SceneSwitcherService     _sceneSwitcherService;
         private readonly ICoroutinesPerformer     _coroutinesPerformer;
-        private readonly StatsService             _statsService;
+        private readonly WinrateService             _winrateService;
         private readonly WalletService            _walletService;
         private readonly LevelsListConfig         _levelsListConfig;
         private readonly GameplayPopupService     _popupService;
 
         public WinState(
             IInputService inputService,
-            StatsService statsService,
+            WinrateService winrateService,
             LevelsProgressionService levelsProgressionService,
             GameplayInputArgs gameplayInputArgs,
             PlayerDataProvider playerDataProvider,
@@ -42,7 +42,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.States
         {
             _inputService             = inputService;
             _levelsProgressionService = levelsProgressionService;
-            _statsService             = statsService;
+            _winrateService             = winrateService;
             _gameplayInputArgs        = gameplayInputArgs;
             _playerDataProvider       = playerDataProvider;
             _sceneSwitcherService     = sceneSwitcherService;
@@ -59,11 +59,15 @@ namespace Assets._Project.Develop.Runtime.Gameplay.States
             _popupService.OpenWinPopup();
 
             _levelsProgressionService.AddLevelToCompleted(_gameplayInputArgs.LevelNumber);
-            _statsService.IncrementWins();
+            _winrateService.IncrementWins();
 
-            int goldReward = _levelsListConfig.GetBy(_gameplayInputArgs.LevelNumber).WinReward;
+            LevelConfig config = _levelsListConfig.GetBy(_gameplayInputArgs.LevelNumber);
+
+            int goldReward    = config.WinGoldReward;
+            int diamondReward = config.WinDiamondReward;
 
             _walletService.Add(CurrencyTypes.Gold, goldReward);
+            _walletService.Add(CurrencyTypes.Diamonds, diamondReward);
 
             _coroutinesPerformer.StartCoroutine(_playerDataProvider.SaveAsync());
         }

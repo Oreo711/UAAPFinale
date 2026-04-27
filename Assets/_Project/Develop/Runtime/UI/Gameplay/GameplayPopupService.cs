@@ -1,4 +1,5 @@
 using System;
+using _Project.Develop.Runtime.Gameplay.Features.Stats;
 using Assets._Project.Develop.Runtime.UI.Core;
 using Assets._Project.Develop.Runtime.UI.Gameplay.ResultPopups;
 using Assets._Project.Develop.Runtime.UI.Gameplay.Stages;
@@ -24,6 +25,7 @@ namespace Assets._Project.Develop.Runtime.UI.Gameplay
 		}
 
 		protected override Transform PopupLayer => _uiRoot.PopupsLayer;
+
 
 		public DeployableSelectPopupPresenter OpenDeployableSelectPopup (Action closedCallback = null)
 		{

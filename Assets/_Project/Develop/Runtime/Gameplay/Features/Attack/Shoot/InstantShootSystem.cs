@@ -14,8 +14,9 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Attack.Shoot
 
         private Entity _entity;
 
-        private ReactiveVariable<float> _damage;
-        private Transform _shootPoint;
+        private ReactiveVariable<float>           _damage;
+        private Transform                         _shootPoint;
+        private ReactiveVariable<ProjectileTypes> _projectileType;
 
         private IDisposable _attackDelayEndDisposable;
 
@@ -32,14 +33,28 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Attack.Shoot
 
             _damage = entity.InstantAttackDamage;
             _shootPoint = entity.ShootPoint;
+            _projectileType = entity.ProjectileType;
 
             _attackDelayEndDisposable = _attackDelayEndEvent.Subscribe(OnAttackDelayEnd);
         }
 
         private void OnAttackDelayEnd()
         {
-            _entitiesFactory.CreateProjectile(_shootPoint.position, _shootPoint.forward, _damage.Value, _entity);
-        }
+            switch (_projectileType.Value)
+            {
+                case ProjectileTypes.Arrow:
+                    _entitiesFactory.CreateArrowProjectile(_shootPoint.position, _shootPoint.forward, _damage.Value, _entity);
+                    break;
+
+                case ProjectileTypes.Bullet:
+                    _entitiesFactory.CreateBulletProjectile(_shootPoint.position, _shootPoint.forward, _damage.Value, _entity);
+                    break;
+
+                default:
+                    throw new ArgumentException("Projectile type not supported");
+            }
+
+                   }
 
         public void OnDispose()
         {

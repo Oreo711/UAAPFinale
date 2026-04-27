@@ -17,6 +17,7 @@ using Assets._Project.Develop.Runtime.Utilities.SceneManagment;
 using Assets._Project.Develop.Runtime.Utilities.Timer;
 using System;
 using System.Collections.Generic;
+using _Project.Develop.Runtime.Gameplay.Features.Stats;
 using Assets._Project.Develop.Runtime.Meta.Features.Stats;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -54,11 +55,20 @@ namespace Assets._Project.Develop.Runtime.Infrastructure.EntryPoint
             container.RegisterAsSingle<ISaveLoadService>(CreateSaveLoadService);
 
             container.RegisterAsSingle(CreateLevelsProgressionService).NonLazy();
+
+            container.RegisterAsSingle(CreateStatsUpgradeService).NonLazy();
         }
 
-        private static StatsService CreateStatsService (DIContainer c)
+        private static StatsUpgradeService CreateStatsUpgradeService (DIContainer c)
         {
-            return new StatsService(c.Resolve<PlayerDataProvider>());
+            return new StatsUpgradeService(
+                c.Resolve<PlayerDataProvider>(),
+                c.Resolve<ConfigsProviderService>());
+        }
+
+        private static WinrateService CreateStatsService (DIContainer c)
+        {
+            return new WinrateService(c.Resolve<PlayerDataProvider>());
         }
 
         private static TimerServiceFactory CreateTimerService(DIContainer c)

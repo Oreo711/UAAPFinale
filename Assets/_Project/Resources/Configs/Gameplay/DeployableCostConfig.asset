@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: DeployableCostConfig
   m_EditorClassIdentifier: 
   _mineCost: 10
-  _sentryCost: 20
+  _sentryCost: 15
+  _puddleCost: 5

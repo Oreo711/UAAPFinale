@@ -1,4 +1,5 @@
 ﻿using _Project.Develop.Runtime.Configs.Gameplay.Entities;
+using _Project.Develop.Runtime.Gameplay.Features.Death;
 using _Project.Develop.Runtime.Gameplay.Features.Deploy;
 using _Project.Develop.Runtime.Gameplay.Features.Mines;
 using _Project.Develop.Runtime.Gameplay.Features.Spawn;
@@ -9,6 +10,7 @@ using Assets._Project.Develop.Runtime.Gameplay.Features.ApplyDamage;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Attack;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Attack.Shoot;
 using Assets._Project.Develop.Runtime.Gameplay.Features.ContactTakeDamage;
+using Assets._Project.Develop.Runtime.Gameplay.Features.DamageOverTime;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Deploy;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Explosion;
 using Assets._Project.Develop.Runtime.Gameplay.Features.InputFeature;
@@ -16,6 +18,7 @@ using Assets._Project.Develop.Runtime.Gameplay.Features.LifeCycle;
 using Assets._Project.Develop.Runtime.Gameplay.Features.MainHero;
 using Assets._Project.Develop.Runtime.Gameplay.Features.MovementFeature;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Sensors;
+using Assets._Project.Develop.Runtime.Gameplay.Features.StagesFeature;
 using Assets._Project.Develop.Runtime.Gameplay.Features.TeamsFeature;
 using Assets._Project.Develop.Runtime.Infrastructure.DI;
 using Assets._Project.Develop.Runtime.Utilities;
@@ -34,6 +37,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
         private readonly MonoEntitiesFactory      _monoEntitiesFactory;
         private readonly MainHeroHolderService    _mainHeroHolderService;
         private readonly ConfigsProviderService   _configsProviderService;
+        private readonly StageProviderService     _stageProviderService;
 
         public EntitiesFactory(DIContainer container)
         {
@@ -43,6 +47,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
             _collidersRegistryService = _container.Resolve<CollidersRegistryService>();
             _mainHeroHolderService    = _container.Resolve<MainHeroHolderService>();
             _configsProviderService   = _container.Resolve<ConfigsProviderService>();
+            _stageProviderService     = _container.Resolve<StageProviderService>();
         }
 
         public Entity CreateTower (Vector3 position, TowerConfig config)
@@ -60,7 +65,8 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
                 .AddWorldPointExplosionEvent()
                 .AddMineDeployRequest()
                 .AddSentryDeployRequest()
-                .AddCurrentDeployable(new ReactiveVariable<Deployables>(Deployables.Sentry))
+                .AddPuddleDeployRequest()
+                .AddCurrentDeployable(new ReactiveVariable<Deployables>(Deployables.Puddle))
                 .AddTakeDamageRequest()
                 .AddTakeDamageEvent()
                 .AddIsDead();
@@ -83,11 +89,49 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
                   .AddSystem(new SelfReleaseSystem(_entitiesLifeContext))
                   .AddSystem(new WorldPointExplosionSystem(_collidersRegistryService))
                   .AddSystem(new MineDeploySystem(this, _configsProviderService.GetConfig<MineConfig>(), _entitiesLifeContext))
+                  .AddSystem(new PuddleDeploySystem(this, _configsProviderService.GetConfig<PuddleConfig>(), _entitiesLifeContext))
                   .AddSystem(new SentryDeploySystem(
                       this,
                       _configsProviderService.GetConfig<SentryConfig>(),
                       _entitiesLifeContext,
                       _container.Resolve<BrainsFactory>()));
+
+            return entity;
+        }
+
+
+        public Entity CreatePuddle (Vector3 position, PuddleConfig config)
+        {
+            Entity entity = CreateEmpty();
+
+            _monoEntitiesFactory.Create(entity, position, "Entities/Puddle");
+
+            entity
+                .AddDamagePerTick(new ReactiveVariable<float>(config.DamagePerTick))
+                .AddTicksPerSecond(new ReactiveVariable<int>(config.TicksPerSecond))
+                .AddIsDead()
+                .AddMarkedForDeath()
+                .AddContactsDetectingMask(Layers.CharactersMask)
+                .AddContactCollidersBuffer(new Buffer<Collider>(64))
+                .AddContactEntitiesBuffer(new Buffer<Entity>(64));
+
+            ICompositeCondition mustDie = new CompositeCondition()
+                .Add(new FuncCondition(() => entity.MarkedForDeath.Value));
+
+            ICompositeCondition mustSelfRelease = new CompositeCondition()
+                .Add(new FuncCondition(() => entity.IsDead.Value));
+
+            entity.AddMustDie(mustDie);
+            entity.AddMustSelfRelease(mustSelfRelease);
+
+            entity
+                .AddSystem(new BodyContactsDetectingSystem())
+                .AddSystem(new BodyContactsEntitiesFilterSystem(_collidersRegistryService))
+                .AddSystem(new DeathSystem())
+                .AddSystem(new SelfReleaseSystem(_entitiesLifeContext))
+                .AddSystem(new DisableCollidersOnDeathSystem())
+                .AddSystem(new DeathAfterOneWaveSystem(_stageProviderService))
+                .AddSystem(new ContactDamageOverTimeSystem());
 
             return entity;
         }
@@ -111,6 +155,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
                 .AddEndAttackEvent()
                 .AddAttackDelayTime(new ReactiveVariable<float>(config.AttackDelayTime))
                 .AddAttackDelayEndEvent()
+                .AddProjectileType(new ReactiveVariable<ProjectileTypes>(ProjectileTypes.Bullet))
                 .AddInstantAttackDamage(new ReactiveVariable<float>(config.InstantAttackDamage))
                 .AddAttackCooldownInitialTime(new ReactiveVariable<float>(config.AttackCooldown))
                 .AddAttackCooldownCurrentTime()
@@ -233,7 +278,11 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
 
             _monoEntitiesFactory.Create(entity, position, "Entities/Ranger");
 
-            entity.AddMoveDirection()
+            entity
+                  .AddSpawnInitialTime(new ReactiveVariable<float>(config.SpawnProcessTime))
+                  .AddSpawnCurrentTime()
+                  .AddInSpawnProcess()
+                  .AddMoveDirection()
                   .AddMoveSpeed(new ReactiveVariable<float>(config.MoveSpeed))
                   .AddIsMoving()
                   .AddRotationDirection()
@@ -253,6 +302,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
                   .AddEndAttackEvent()
                   .AddAttackDelayTime(new ReactiveVariable<float>(config.AttackDelayTime))
                   .AddAttackDelayEndEvent()
+                  .AddProjectileType(new ReactiveVariable<ProjectileTypes>(ProjectileTypes.Arrow))
                   .AddInstantAttackDamage(new ReactiveVariable<float>(config.InstantAttackDamage))
                   .AddAttackCooldownInitialTime(new ReactiveVariable<float>(config.AttackCooldown))
                   .AddAttackCooldownCurrentTime()
@@ -287,19 +337,19 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
                 .AddCanApplyDamage(canApplyDamage)
                 .AddCanStartAttack(canStartAttack);
 
-            entity
-                .AddSystem(new RigidbodyMovementSystem())
-                .AddSystem(new RigidbodyRotationSystem())
-                .AddSystem(new StartAttackSystem())
-                .AddSystem(new AttackProcessTimerSystem())
-                .AddSystem(new AttackDelayEndTriggerSystem())
-                .AddSystem(new InstantShootSystem(this))
-                .AddSystem(new EndAttackSystem())
-                .AddSystem(new AttackCooldownTimerSystem())
-                .AddSystem(new ApplyDamageSystem())
-                .AddSystem(new DeathSystem())
-                .AddSystem(new DisableCollidersOnDeathSystem())
-                .AddSystem(new SelfReleaseSystem(_entitiesLifeContext));
+            entity.AddSystem(new SpawnProcessTimerSystem())
+                  .AddSystem(new RigidbodyMovementSystem())
+                  .AddSystem(new RigidbodyRotationSystem())
+                  .AddSystem(new StartAttackSystem())
+                  .AddSystem(new AttackProcessTimerSystem())
+                  .AddSystem(new AttackDelayEndTriggerSystem())
+                  .AddSystem(new InstantShootSystem(this))
+                  .AddSystem(new EndAttackSystem())
+                  .AddSystem(new AttackCooldownTimerSystem())
+                  .AddSystem(new ApplyDamageSystem())
+                  .AddSystem(new DeathSystem())
+                  .AddSystem(new DisableCollidersOnDeathSystem())
+                  .AddSystem(new SelfReleaseSystem(_entitiesLifeContext));
 
             return entity;
         }
@@ -455,12 +505,8 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
             return entity;
         }
 
-        public Entity CreateProjectile(Vector3 position, Vector3 direction, float damage, Entity owner)
+        private Entity CreateProjectileCS (Entity entity, Vector3 direction, float damage, Entity owner)
         {
-            Entity entity = CreateEmpty();
-
-            _monoEntitiesFactory.Create(entity, position, "Entities/Projectile");
-
             entity
                 .AddMoveDirection(new ReactiveVariable<Vector3>(direction))
                 .AddMoveSpeed(new ReactiveVariable<float>(10))
@@ -511,6 +557,28 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
             _entitiesLifeContext.Add(entity);
 
             return entity;
+        }
+
+        public Entity CreateArrowProjectile(Vector3 position, Vector3 direction, float damage, Entity owner)
+        {
+            Entity entity = CreateEmpty();
+
+            _monoEntitiesFactory.Create(entity, position, "Entities/Arrow");
+
+            Entity arrow = CreateProjectileCS(entity, direction, damage, owner);
+
+            return arrow;
+        }
+
+        public Entity CreateBulletProjectile(Vector3 position, Vector3 direction, float damage, Entity owner)
+        {
+            Entity entity = CreateEmpty();
+
+            _monoEntitiesFactory.Create(entity, position, "Entities/Bullet");
+
+            Entity arrow = CreateProjectileCS(entity, direction, damage, owner);
+
+            return arrow;
         }
 
         public Entity CreateContactTrigger(Vector3 position)

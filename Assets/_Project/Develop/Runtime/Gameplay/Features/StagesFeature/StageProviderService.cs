@@ -4,7 +4,7 @@ using System;
 
 namespace Assets._Project.Develop.Runtime.Gameplay.Features.StagesFeature
 {
-    public class StageProviderService : IDisposable
+    public class    StageProviderService : IDisposable
     {
         private ReactiveVariable<int> _currentStageNumber = new();
         private ReactiveVariable<StageResults> _currentStageResult = new();

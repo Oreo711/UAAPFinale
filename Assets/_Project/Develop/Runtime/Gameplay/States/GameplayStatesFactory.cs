@@ -40,7 +40,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.States
         {
             return new WinState(
                 _container.Resolve<IInputService>(),
-                _container.Resolve<StatsService>(),
+                _container.Resolve<WinrateService>(),
                 _container.Resolve<LevelsProgressionService>(),
                 inputArgs,
                 _container.Resolve<PlayerDataProvider>(),
@@ -58,7 +58,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.States
                 _container.Resolve<SceneSwitcherService>(),
                 _container.Resolve<ICoroutinesPerformer>(),
                 _container.Resolve<PlayerDataProvider>(),
-                _container.Resolve<StatsService>(),
+                _container.Resolve<WinrateService>(),
                 _container.Resolve<GameplayPopupService>());
         }
 
