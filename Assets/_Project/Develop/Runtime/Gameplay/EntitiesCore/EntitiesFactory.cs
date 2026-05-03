@@ -4,6 +4,7 @@ using _Project.Develop.Runtime.Gameplay.Features.Deploy;
 using _Project.Develop.Runtime.Gameplay.Features.Mines;
 using _Project.Develop.Runtime.Gameplay.Features.Spawn;
 using Assets._Project.Develop.Runtime.Configs.Gameplay.Entities;
+using Assets._Project.Develop.Runtime.Configs.Gameplay.Levels;
 using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore.Mono;
 using Assets._Project.Develop.Runtime.Gameplay.Features.AI;
 using Assets._Project.Develop.Runtime.Gameplay.Features.ApplyDamage;
@@ -13,7 +14,6 @@ using Assets._Project.Develop.Runtime.Gameplay.Features.ContactTakeDamage;
 using Assets._Project.Develop.Runtime.Gameplay.Features.DamageOverTime;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Deploy;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Explosion;
-using Assets._Project.Develop.Runtime.Gameplay.Features.InputFeature;
 using Assets._Project.Develop.Runtime.Gameplay.Features.LifeCycle;
 using Assets._Project.Develop.Runtime.Gameplay.Features.MainHero;
 using Assets._Project.Develop.Runtime.Gameplay.Features.MovementFeature;
@@ -38,6 +38,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
         private readonly MainHeroHolderService    _mainHeroHolderService;
         private readonly ConfigsProviderService   _configsProviderService;
         private readonly StageProviderService     _stageProviderService;
+        private readonly AreaHitscanService       _areaHitscanService;
 
         public EntitiesFactory(DIContainer container)
         {
@@ -48,6 +49,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
             _mainHeroHolderService    = _container.Resolve<MainHeroHolderService>();
             _configsProviderService   = _container.Resolve<ConfigsProviderService>();
             _stageProviderService     = _container.Resolve<StageProviderService>();
+            _areaHitscanService       = _container.Resolve<AreaHitscanService>();
         }
 
         public Entity CreateTower (Vector3 position, TowerConfig config)
@@ -87,7 +89,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
             entity.AddSystem(new ApplyDamageSystem())
                   .AddSystem(new DeathSystem())
                   .AddSystem(new SelfReleaseSystem(_entitiesLifeContext))
-                  .AddSystem(new WorldPointExplosionSystem(_collidersRegistryService))
+                  .AddSystem(new WorldPointExplosionSystem(_areaHitscanService))
                   .AddSystem(new MineDeploySystem(this, _configsProviderService.GetConfig<MineConfig>(), _entitiesLifeContext))
                   .AddSystem(new PuddleDeploySystem(this, _configsProviderService.GetConfig<PuddleConfig>(), _entitiesLifeContext))
                   .AddSystem(new SentryDeploySystem(
@@ -207,7 +209,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
                 .AddSystem(new DeathSystem())
                 .AddSystem(new SelfReleaseSystem(_entitiesLifeContext))
                 .AddSystem(new DisableCollidersOnDeathSystem())
-                .AddSystem(new CollisionExplosionSystem(_collidersRegistryService));
+                .AddSystem(new CollisionExplosionSystem(_areaHitscanService));
 
             return entity;
         }
@@ -263,7 +265,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
             entity.AddSystem(new SpawnProcessTimerSystem())
                   .AddSystem(new RigidbodyMovementSystem())
                   .AddSystem(new RigidbodyRotationSystem())
-                  .AddSystem(new KamikazeExplosionSystem(_collidersRegistryService))
+                  .AddSystem(new KamikazeExplosionSystem(_areaHitscanService))
                   .AddSystem(new DeathSystem())
                   .AddSystem(new SelfReleaseSystem(_entitiesLifeContext))
                   .AddSystem(new ApplyDamageSystem())
@@ -505,8 +507,21 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
             return entity;
         }
 
-        private Entity CreateProjectileCS (Entity entity, Vector3 direction, float damage, Entity owner)
+        public Entity CreateProjectile (Vector3 position, Vector3 direction, float damage, Entity owner, ProjectileTypes type)
         {
+            Entity entity = CreateEmpty();
+
+            switch (type)
+            {
+                case ProjectileTypes.Arrow:
+                    _monoEntitiesFactory.Create(entity, position, "Entities/Arrow");
+                    break;
+                case ProjectileTypes.Bullet:
+                    _monoEntitiesFactory.Create(entity, position, "Entities/Bullet");
+                    break;
+            }
+
+
             entity
                 .AddMoveDirection(new ReactiveVariable<Vector3>(direction))
                 .AddMoveSpeed(new ReactiveVariable<float>(10))
@@ -557,28 +572,6 @@ namespace Assets._Project.Develop.Runtime.Gameplay.EntitiesCore
             _entitiesLifeContext.Add(entity);
 
             return entity;
-        }
-
-        public Entity CreateArrowProjectile(Vector3 position, Vector3 direction, float damage, Entity owner)
-        {
-            Entity entity = CreateEmpty();
-
-            _monoEntitiesFactory.Create(entity, position, "Entities/Arrow");
-
-            Entity arrow = CreateProjectileCS(entity, direction, damage, owner);
-
-            return arrow;
-        }
-
-        public Entity CreateBulletProjectile(Vector3 position, Vector3 direction, float damage, Entity owner)
-        {
-            Entity entity = CreateEmpty();
-
-            _monoEntitiesFactory.Create(entity, position, "Entities/Bullet");
-
-            Entity arrow = CreateProjectileCS(entity, direction, damage, owner);
-
-            return arrow;
         }
 
         public Entity CreateContactTrigger(Vector3 position)

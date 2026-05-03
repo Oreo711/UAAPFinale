@@ -1,10 +1,11 @@
+using _Project.Develop.Runtime.Gameplay.Features.Stats;
 using Assets._Project.Develop.Runtime.UI.CommonViews;
 using Assets._Project.Develop.Runtime.UI.Core;
 using TMPro;
 using UnityEngine;
 
 
-namespace _Project.Develop.Runtime.Gameplay.Features.Stats
+namespace Assets._Project.Develop.Runtime.Gameplay.Features.Stats
 {
 	public class StatsUpgradePopupView : PopupViewBase
 	{

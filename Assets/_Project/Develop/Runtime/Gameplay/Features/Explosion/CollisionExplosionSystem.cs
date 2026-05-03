@@ -16,11 +16,11 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Explosion
 		private ReactiveVariable<bool>  _markedForDeath;
 		private Entity                  _entity;
 
-		private readonly CollidersRegistryService _collidersRegistryService;
+		private readonly AreaHitscanService _areaHitscanService;
 
-		public CollisionExplosionSystem (CollidersRegistryService collidersRegistryService)
+		public CollisionExplosionSystem (AreaHitscanService areaHitscanService)
 		{
-			_collidersRegistryService = collidersRegistryService;
+			_areaHitscanService = areaHitscanService;
 		}
 
 
@@ -35,23 +35,14 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Explosion
 
 		public void OnUpdate (float deltaTime)
 		{
-			Collider[] collidersWithinRadius = Physics.OverlapSphere(
-				_transform.position,
-				_blastRadius.Value,
-				LayerMask.GetMask("Characters"));
-
-			if (collidersWithinRadius.Length > 0)
+			if (_areaHitscanService.Scan(
+				    _transform.position,
+				    _blastRadius.Value,
+				    LayerMask.GetMask("Characters"),
+				    _entity, _explosionDamage.Value))
 			{
-				foreach (Collider hitCollider in collidersWithinRadius)
-				{
-					Entity entity = _collidersRegistryService.GetBy(hitCollider);
-
-					if (EntitiesHelper.TryTakeDamageFrom(_entity, entity, _explosionDamage.Value))
-					{
-						_markedForDeath.Value = true;
-					}
-				}
-			}
+				_markedForDeath.Value = true;
 			}
 		}
+	}
 }

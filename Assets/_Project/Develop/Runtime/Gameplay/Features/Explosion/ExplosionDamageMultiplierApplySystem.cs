@@ -12,7 +12,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Explosion
 		private ReactiveVariable<float> _multiplier;
 		private ReactiveVariable<float> _modifiedDamage;
 
-		private IDisposable[] _disposables = new IDisposable[2];
+		private readonly IDisposable[] _disposables = new IDisposable[2];
 
 		public void OnInit (Entity entity)
 		{
@@ -23,7 +23,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Explosion
 			Apply();
 
 			_disposables[0] = _explosionDamage.Subscribe(OnAnyValueChanged);
-			_disposables[1] = _explosionDamage.Subscribe(OnAnyValueChanged);
+			_disposables[1] = _multiplier.Subscribe(OnAnyValueChanged);
 		}
 
 		private void OnAnyValueChanged (float _, float __)

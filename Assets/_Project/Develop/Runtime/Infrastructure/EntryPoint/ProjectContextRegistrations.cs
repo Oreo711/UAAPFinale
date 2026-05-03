@@ -63,7 +63,9 @@ namespace Assets._Project.Develop.Runtime.Infrastructure.EntryPoint
         {
             return new StatsUpgradeService(
                 c.Resolve<PlayerDataProvider>(),
-                c.Resolve<ConfigsProviderService>());
+                c.Resolve<ConfigsProviderService>(),
+                c.Resolve<WalletService>(),
+                c.Resolve<ICoroutinesPerformer>());
         }
 
         private static WinrateService CreateStatsService (DIContainer c)

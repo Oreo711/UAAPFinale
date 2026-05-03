@@ -18,3 +18,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 75af250c666f20d4f972c24e999b3534, type: 2}
   _winGoldReward: 30
   _winDiamondReward: 10
+  _towerConfig:
+    _health: 200
+    _damage: 50
+    _radius: 3

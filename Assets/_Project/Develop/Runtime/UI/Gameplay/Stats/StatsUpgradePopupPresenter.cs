@@ -1,11 +1,13 @@
 using System.Collections.Generic;
+using _Project.Develop.Runtime.Gameplay.Features.Stats;
+using Assets._Project.Develop.Runtime.Gameplay.Features.Stats;
 using Assets._Project.Develop.Runtime.UI;
 using Assets._Project.Develop.Runtime.UI.Core;
 using Assets._Project.Develop.Runtime.UI.Wallet;
 using Assets._Project.Develop.Runtime.Utilities.CoroutinesManagment;
 
 
-namespace _Project.Develop.Runtime.Gameplay.Features.Stats
+namespace Assets._Project.Develop.Runtime.Gameplay.Features.Stats
 {
 	public class StatsUpgradePopupPresenter : PopupPresenterBase
       {

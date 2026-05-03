@@ -23,7 +23,6 @@ namespace Assets._Project.Develop.Runtime.Utilities.ConfigsManagment
             {typeof(CurrencyIconsConfig), "Configs/Meta/Wallet/CurrencyIconsConfig" },
             {typeof(LevelsListConfig), "Configs/Gameplay/Levels/LevelsListConfig" },
             {typeof(HeroConfig), "Configs/Gameplay/Entities/Characters/HeroConfig" },
-            {typeof(TowerConfig), "Configs/Gameplay/Entities/Characters/TowerConfig"},
             {typeof(BomberConfig), "Configs/Gameplay/Entities/Characters/BomberConfig"},
             {typeof(MineConfig), "Configs/Gameplay/Entities/MineConfig"},
             {typeof(SentryConfig), "Configs/Gameplay/Entities/SentryConfig"},

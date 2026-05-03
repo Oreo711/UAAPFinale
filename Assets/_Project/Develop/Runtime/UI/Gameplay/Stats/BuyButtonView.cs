@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-namespace _Project.Develop.Runtime.Gameplay.Features.Stats
+namespace Assets._Project.Develop.Runtime.Gameplay.Features.Stats
 {
 	public class BuyButtonView : MonoBehaviour, IView
 	{

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using _Project.Develop.Runtime.Gameplay.Features.Stats;
 using Assets._Project.Develop.Runtime.Configs.Meta.Wallet;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Attack;
+using Assets._Project.Develop.Runtime.Gameplay.Features.Stats;
 using Assets._Project.Develop.Runtime.Meta.Features.Wallet;
 using Assets._Project.Develop.Runtime.UI.Core;
 using Assets._Project.Develop.Runtime.Utilities.CoroutinesManagment;
@@ -15,14 +17,12 @@ namespace _Project.Develop.Runtime.Gameplay.Features.Stats
 {
 	public class UpgradableStatPresenter : IPresenter
     {
-        private UpgradableStatView   _view;
-        private StatsViewConfig      _statsViewConfig;
-        private StatsUpgradeService  _upgradeStatsService;
-        private WalletService        _walletService;
-        private PlayerDataProvider   _playerDataProvider;
-        private StatTypes            _statType;
-        private CurrencyIconsConfig  _currencyIconsConfig;
-        private ICoroutinesPerformer _coroutinesPerformer;
+        private readonly UpgradableStatView   _view;
+        private readonly StatsViewConfig      _statsViewConfig;
+        private readonly StatsUpgradeService  _upgradeStatsService;
+        private readonly WalletService        _walletService;
+        private readonly StatTypes            _statType;
+        private readonly CurrencyIconsConfig  _currencyIconsConfig;
 
         private List<IDisposable> _disposables = new();
 
@@ -41,10 +41,8 @@ namespace _Project.Develop.Runtime.Gameplay.Features.Stats
             _statsViewConfig     = statsShowConfig;
             _upgradeStatsService = upgradeStatsService;
             _walletService       = walletService;
-            _playerDataProvider  = playerDataProvider;
             _statType            = type;
             _currencyIconsConfig = currencyIconsConfig;
-            _coroutinesPerformer = coroutinesPerformer;
         }
 
         public UpgradableStatView View => _view;
@@ -82,18 +80,7 @@ namespace _Project.Develop.Runtime.Gameplay.Features.Stats
 
         private void OnBuyButtonClicked()
         {
-            if (_upgradeStatsService.TryGetUpgradeCostFor(_statType, out CurrencyTypes currencyType, out int cost))
-            {
-                if(_walletService.Enough(currencyType, cost))
-                {
-                    if (_upgradeStatsService.TryUpgradeStat(_statType) == false)
-                        throw new Exception();
-
-                    _walletService.Spend(currencyType, cost);
-
-                    _coroutinesPerformer.StartCoroutine(_playerDataProvider.SaveAsync());
-                }
-            }
+           _upgradeStatsService.TryBuyUpgrade(_statType);
         }
 
         private void UpdateBuyButtonState()

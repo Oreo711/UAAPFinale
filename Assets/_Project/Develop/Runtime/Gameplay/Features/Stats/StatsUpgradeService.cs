@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Assets._Project.Develop.Runtime.Gameplay.Features.Attack;
 using Assets._Project.Develop.Runtime.Meta.Features.Wallet;
 using Assets._Project.Develop.Runtime.Utilities.ConfigsManagment;
+using Assets._Project.Develop.Runtime.Utilities.CoroutinesManagment;
 using Assets._Project.Develop.Runtime.Utilities.DataManagment;
 using Assets._Project.Develop.Runtime.Utilities.DataManagment.DataProviders;
 using Assets._Project.Develop.Runtime.Utilities.Reactive;
@@ -12,13 +14,19 @@ namespace _Project.Develop.Runtime.Gameplay.Features.Stats
 {
     public class StatsUpgradeService : IDataReader<PlayerData>, IDataWriter<PlayerData>
     {
-        private ConfigsProviderService _configsProviderService;
+        private readonly ConfigsProviderService _configsProviderService;
+        private readonly WalletService          _walletService;
+        private readonly PlayerDataProvider     _playerDataProvider;
+        private readonly ICoroutinesPerformer   _coroutinesPerformer;
 
-        private Dictionary<StatTypes, ReactiveVariable<int>> _statLevels = new();
+        private readonly Dictionary<StatTypes, ReactiveVariable<int>> _statLevels = new();
 
-        public StatsUpgradeService (PlayerDataProvider playerDataProvider, ConfigsProviderService configsProviderService)
+        public StatsUpgradeService (PlayerDataProvider playerDataProvider, ConfigsProviderService configsProviderService, WalletService walletService, ICoroutinesPerformer coroutinesPerformer)
         {
             _configsProviderService = configsProviderService;
+            _walletService          = walletService;
+            _playerDataProvider     = playerDataProvider;
+            _coroutinesPerformer    = coroutinesPerformer;
 
             playerDataProvider.RegisterReader(this);
             playerDataProvider.RegisterWriter(this);
@@ -69,6 +77,22 @@ namespace _Project.Develop.Runtime.Gameplay.Features.Stats
             costType = statData.CostType;
             cost     = statData.UpgradeToNextLevelCost[_statLevels[type].Value - 1];
             return true;
+        }
+
+        public void TryBuyUpgrade (StatTypes type)
+        {
+            if (TryGetUpgradeCostFor(type, out CurrencyTypes currencyType, out int cost))
+            {
+                if (_walletService.Enough(currencyType, cost))
+                {
+                    if (TryUpgradeStat(type) == false)
+                        throw new Exception();
+
+                    _walletService.Spend(currencyType, cost);
+
+                    _coroutinesPerformer.StartCoroutine(_playerDataProvider.SaveAsync());
+                }
+            }
         }
 
         public bool TryUpgradeStat (StatTypes type)

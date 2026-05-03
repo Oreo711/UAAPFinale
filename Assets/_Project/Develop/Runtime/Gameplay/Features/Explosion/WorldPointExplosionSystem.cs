@@ -18,13 +18,13 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Explosion
 		private ReactiveEvent<Vector3>  _explosionEvent;
 		private Entity                  _entity;
 
-		private readonly CollidersRegistryService _collidersRegistryService;
+		private readonly AreaHitscanService _areaHitscanService;
 
 		private IDisposable _disposable;
 
-		public WorldPointExplosionSystem (CollidersRegistryService collidersRegistryService)
+		public WorldPointExplosionSystem (AreaHitscanService areaHitscanService)
 		{
-			_collidersRegistryService = collidersRegistryService;
+			_areaHitscanService = areaHitscanService;
 		}
 
 
@@ -41,14 +41,12 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Explosion
 
 		private void OnExplosionRequest (Vector3 position)
 		{
-			Collider[] hitColliders = Physics.OverlapSphere(position, _blastRadius.Value, LayerMask.GetMask("Characters"));
-
-			foreach (Collider hitCollider in hitColliders)
-			{
-				Entity entity = _collidersRegistryService.GetBy(hitCollider);
-
-				EntitiesHelper.TryTakeDamageFrom(_entity, entity, _explosionDamage.Value);
-			}
+			_areaHitscanService.Scan(
+				position,
+				_blastRadius.Value,
+				LayerMask.GetMask("Characters"),
+				_entity,
+				_explosionDamage.Value);
 
 			_explosionEvent.Invoke(position);
 		}

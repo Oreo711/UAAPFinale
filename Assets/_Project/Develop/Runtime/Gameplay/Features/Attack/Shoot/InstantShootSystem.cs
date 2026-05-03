@@ -40,21 +40,8 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.Attack.Shoot
 
         private void OnAttackDelayEnd()
         {
-            switch (_projectileType.Value)
-            {
-                case ProjectileTypes.Arrow:
-                    _entitiesFactory.CreateArrowProjectile(_shootPoint.position, _shootPoint.forward, _damage.Value, _entity);
-                    break;
-
-                case ProjectileTypes.Bullet:
-                    _entitiesFactory.CreateBulletProjectile(_shootPoint.position, _shootPoint.forward, _damage.Value, _entity);
-                    break;
-
-                default:
-                    throw new ArgumentException("Projectile type not supported");
-            }
-
-                   }
+            _entitiesFactory.CreateProjectile(_shootPoint.position, _shootPoint.forward, _damage.Value, _entity, _projectileType.Value);
+        }
 
         public void OnDispose()
         {

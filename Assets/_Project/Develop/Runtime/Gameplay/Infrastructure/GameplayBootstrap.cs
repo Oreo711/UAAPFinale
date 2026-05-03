@@ -50,7 +50,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Infrastructure
 
             _screenPresenter = _container.Resolve<GameplayScreenPresenter>();
 
-            _container.Resolve<MainHeroFactory>().Create(Vector3.zero);
+            _container.Resolve<MainHeroFactory>().Create(Vector3.zero, _inputArgs.LevelNumber);
 
             yield break;
         }

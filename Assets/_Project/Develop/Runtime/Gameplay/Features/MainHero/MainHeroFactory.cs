@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using _Project.Develop.Runtime.Gameplay.Features.Stats;
 using Assets._Project.Develop.Runtime.Configs.Gameplay.Entities;
+using Assets._Project.Develop.Runtime.Configs.Gameplay.Levels;
 using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore;
 using Assets._Project.Develop.Runtime.Gameplay.Features.AI;
 using Assets._Project.Develop.Runtime.Gameplay.Features.AI.States;
@@ -11,6 +12,7 @@ using Assets._Project.Develop.Runtime.Gameplay.Features.LifeCycle;
 using Assets._Project.Develop.Runtime.Gameplay.Features.StagesFeature;
 using Assets._Project.Develop.Runtime.Gameplay.Features.TeamsFeature;
 using Assets._Project.Develop.Runtime.Infrastructure.DI;
+using Assets._Project.Develop.Runtime.Meta.Features.LevelsProgression;
 using Assets._Project.Develop.Runtime.Utilities.ConfigsManagment;
 using Assets._Project.Develop.Runtime.Utilities.Reactive;
 using TMPro;
@@ -22,27 +24,29 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.MainHero
     {
         private readonly DIContainer _container;
 
-        private readonly EntitiesFactory        _entitiesFactory;
-        private readonly BrainsFactory          _brainsFactory;
-        private readonly ConfigsProviderService _configsProviderService;
-        private readonly EntitiesLifeContext    _entitiesLifeContext;
-        private readonly StatsUpgradeService    _statsUpgradeService;
+        private readonly EntitiesFactory          _entitiesFactory;
+        private readonly BrainsFactory            _brainsFactory;
+        private readonly ConfigsProviderService   _configsProviderService;
+        private readonly EntitiesLifeContext      _entitiesLifeContext;
+        private readonly StatsUpgradeService      _statsUpgradeService;
 
         public MainHeroFactory(DIContainer container)
         {
-            _container = container;
-            _entitiesFactory = _container.Resolve<EntitiesFactory>();
-            _brainsFactory = _container.Resolve<BrainsFactory>();
-            _configsProviderService = _container.Resolve<ConfigsProviderService>();
-            _entitiesLifeContext = _container.Resolve<EntitiesLifeContext>();
-            _statsUpgradeService = _container.Resolve<StatsUpgradeService>();
+            _container                     = container;
+            _entitiesFactory               = _container.Resolve<EntitiesFactory>();
+            _brainsFactory                 = _container.Resolve<BrainsFactory>();
+            _configsProviderService        = _container.Resolve<ConfigsProviderService>();
+            _entitiesLifeContext           = _container.Resolve<EntitiesLifeContext>();
+            _statsUpgradeService           = _container.Resolve<StatsUpgradeService>();
         }
 
-        public Entity Create(Vector3 position)
+        public Entity Create(Vector3 position, int levelNumber)
         {
-            TowerConfig config = _configsProviderService.GetConfig<TowerConfig>();
+            LevelsListConfig config = _configsProviderService.GetConfig<LevelsListConfig>();
 
-            Entity entity = _entitiesFactory.CreateTower(position, config);
+            LevelConfig levelConfig = config.GetBy(levelNumber);
+
+            Entity entity = _entitiesFactory.CreateTower(position, levelConfig.TowerConfig);
             _brainsFactory.CreateTowerBrain(entity);
 
             Dictionary<StatTypes, float> stats = GetStats();

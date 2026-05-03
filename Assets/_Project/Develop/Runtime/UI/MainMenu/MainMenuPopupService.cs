@@ -1,5 +1,6 @@
 ﻿using System;
 using _Project.Develop.Runtime.Gameplay.Features.Stats;
+using Assets._Project.Develop.Runtime.Gameplay.Features.Stats;
 using Assets._Project.Develop.Runtime.UI.Core;
 using UnityEngine;
 
