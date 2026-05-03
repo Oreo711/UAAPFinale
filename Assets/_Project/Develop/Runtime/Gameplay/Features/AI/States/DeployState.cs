@@ -18,32 +18,26 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.AI.States
 	public class DeployState : State, IUpdatableState
 	{
 		private readonly IInputService                 _inputService;
-		private readonly WalletService                 _wallet;
 		private readonly PlayerDataProvider            _playerDataProvider;
-		private readonly DeployableCostConfig          _costConfig;
 		private readonly ICoroutinesPerformer          _coroutinesPerformer;
-		private          ReactiveEvent<Vector3>        _mineDeployRequest;
-		private          ReactiveEvent<Vector3>        _sentryDeployRequest;
-		private          ReactiveEvent<Vector3>        _puddleDeployRequest;
+		private readonly DeployablePurchaseService     _deployablePurchaseService;
 		private          ReactiveVariable<Deployables> _currentDeployable;
+		private          Entity                        _entity;
 
 		public DeployState (
 			Entity entity,
 			IInputService inputService,
-			WalletService wallet,
 			PlayerDataProvider playerDataProvider,
-			DeployableCostConfig costConfig,
-			ICoroutinesPerformer coroutinesPerformer)
+			ICoroutinesPerformer coroutinesPerformer,
+			DeployablePurchaseService deployablePurchaseService
+		)
 		{
-			_inputService        = inputService;
-			_wallet              = wallet;
-			_playerDataProvider  = playerDataProvider;
-			_coroutinesPerformer = coroutinesPerformer;
-			_costConfig          = costConfig;
-			_mineDeployRequest   = entity.MineDeployRequest;
-			_sentryDeployRequest = entity.SentryDeployRequest;
-			_puddleDeployRequest = entity.PuddleDeployRequest;
-			_currentDeployable   = entity.CurrentDeployable;
+			_inputService              = inputService;
+			_playerDataProvider        = playerDataProvider;
+			_coroutinesPerformer       = coroutinesPerformer;
+			_deployablePurchaseService = deployablePurchaseService;
+			_currentDeployable         = entity.CurrentDeployable;
+			_entity                    = entity;
 		}
 
 		public void Update (float deltaTime)
@@ -60,43 +54,8 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.AI.States
 					if (hitInfo.collider.gameObject.layer == LayerMask.NameToLayer("Deploy Surface"))
 					{
 						Vector3 deployPoint = new Vector3(hitInfo.point.x, 0, hitInfo.point.z);
-						switch (_currentDeployable.Value)
-						{
-							case Deployables.Mine:
-								if (!_wallet.Enough(CurrencyTypes.Gold, _costConfig.MineCost))
-								{
-									return;
-								}
 
-								_mineDeployRequest.Invoke(deployPoint);
-
-								_wallet.Spend(CurrencyTypes.Gold, _costConfig.MineCost);
-								break;
-
-							case Deployables.Sentry:
-								if (!_wallet.Enough(CurrencyTypes.Gold, _costConfig.SentryCost))
-								{
-									return;
-								}
-
-								_sentryDeployRequest.Invoke(deployPoint);
-
-								_wallet.Spend(CurrencyTypes.Gold, _costConfig.SentryCost);
-								break;
-
-							case Deployables.Puddle:
-								if (!_wallet.Enough(CurrencyTypes.Gold, _costConfig.PuddleCost))
-								{
-									return;
-								}
-
-								_puddleDeployRequest.Invoke(deployPoint);
-
-								_wallet.Spend(CurrencyTypes.Gold, _costConfig.PuddleCost);
-								break;
-							default:
-								throw new ArgumentException("This type of deployable is not supported.");
-						}
+						_deployablePurchaseService.PurchaseAndDeploy(_currentDeployable.Value, deployPoint, _entity);
 						_coroutinesPerformer.StartCoroutine(_playerDataProvider.SaveAsync());
 					}
 				}

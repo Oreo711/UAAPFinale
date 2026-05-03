@@ -1,4 +1,6 @@
-﻿using Assets._Project.Develop.Runtime.Configs.Gameplay.Levels;
+﻿using _Project.Develop.Runtime.Configs.Gameplay;
+using _Project.Develop.Runtime.Gameplay.Features.Deploy;
+using Assets._Project.Develop.Runtime.Configs.Gameplay.Levels;
 using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore;
 using Assets._Project.Develop.Runtime.Gameplay.EntitiesCore.Mono;
 using Assets._Project.Develop.Runtime.Gameplay.Features.AI;
@@ -9,11 +11,13 @@ using Assets._Project.Develop.Runtime.Gameplay.Features.MainHero;
 using Assets._Project.Develop.Runtime.Gameplay.Features.StagesFeature;
 using Assets._Project.Develop.Runtime.Gameplay.States;
 using Assets._Project.Develop.Runtime.Infrastructure.DI;
+using Assets._Project.Develop.Runtime.Meta.Features.Wallet;
 using Assets._Project.Develop.Runtime.UI;
 using Assets._Project.Develop.Runtime.UI.Core;
 using Assets._Project.Develop.Runtime.UI.Gameplay;
 using Assets._Project.Develop.Runtime.Utilities.AssetsManagment;
 using Assets._Project.Develop.Runtime.Utilities.ConfigsManagment;
+using Assets._Project.Develop.Runtime.Utilities.CoroutinesManagment;
 using UnityEngine;
 
 namespace Assets._Project.Develop.Runtime.Gameplay.Infrastructure
@@ -63,6 +67,16 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Infrastructure
             container.RegisterAsSingle(CreateGameplayPresentersFactory);
 
             container.RegisterAsSingle(CreateAreaHitscanService);
+
+            container.RegisterAsSingle(CreateDeployablePurchaseService);
+        }
+
+        private static DeployablePurchaseService CreateDeployablePurchaseService (DIContainer c)
+        {
+            return new DeployablePurchaseService(
+                c.Resolve<WalletService>(),
+                c.Resolve<ICoroutinesPerformer>(),
+                c.Resolve<ConfigsProviderService>().GetConfig<DeployableCostConfig>());
         }
 
         private static AreaHitscanService CreateAreaHitscanService (DIContainer c)

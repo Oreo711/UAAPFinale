@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using _Project.Develop.Runtime.Configs.Gameplay;
 using _Project.Develop.Runtime.Configs.Gameplay.Entities;
+using _Project.Develop.Runtime.Gameplay.Features.Deploy;
 using Assets._Project.Develop.Runtime.Gameplay.Features.MainHero;
 using Assets._Project.Develop.Runtime.Gameplay.Features.StagesFeature;
 using Assets._Project.Develop.Runtime.Meta.Features.Wallet;
@@ -22,31 +23,33 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.AI
 {
     public class BrainsFactory
     {
-        private readonly DIContainer            _container;
-        private readonly TimerServiceFactory    _timerServiceFactory;
-        private readonly AIBrainsContext        _brainsContext;
-        private readonly IInputService          _inputService;
-        private readonly EntitiesLifeContext    _entitiesLifeContext;
-        private readonly StageProviderService   _stageProviderService;
-        private readonly WalletService          _walletService;
-        private readonly PlayerDataProvider     _playerDataProvider;
-        private readonly ConfigsProviderService _configsProviderService;
-        private readonly ICoroutinesPerformer   _coroutinesPerformer;
-        private readonly MainHeroHolderService  _mainHeroHolderService;
+        private readonly DIContainer               _container;
+        private readonly TimerServiceFactory       _timerServiceFactory;
+        private readonly AIBrainsContext           _brainsContext;
+        private readonly IInputService             _inputService;
+        private readonly EntitiesLifeContext       _entitiesLifeContext;
+        private readonly StageProviderService      _stageProviderService;
+        private readonly WalletService             _walletService;
+        private readonly PlayerDataProvider        _playerDataProvider;
+        private readonly ConfigsProviderService    _configsProviderService;
+        private readonly ICoroutinesPerformer      _coroutinesPerformer;
+        private readonly MainHeroHolderService     _mainHeroHolderService;
+        private          DeployablePurchaseService _deployablePurchaseService;
 
         public BrainsFactory(DIContainer container)
         {
-            _container              = container;
-            _timerServiceFactory    = _container.Resolve<TimerServiceFactory>();
-            _brainsContext          = _container.Resolve<AIBrainsContext>();
-            _inputService           = _container.Resolve<IInputService>();
-            _entitiesLifeContext    = _container.Resolve<EntitiesLifeContext>();
-            _stageProviderService   = _container.Resolve<StageProviderService>();
-            _walletService          = _container.Resolve<WalletService>();
-            _playerDataProvider     = _container.Resolve<PlayerDataProvider>();
-            _configsProviderService = _container.Resolve<ConfigsProviderService>();
-            _coroutinesPerformer    = _container.Resolve<ICoroutinesPerformer>();
-            _mainHeroHolderService  = _container.Resolve<MainHeroHolderService>();
+            _container                 = container;
+            _timerServiceFactory       = _container.Resolve<TimerServiceFactory>();
+            _brainsContext             = _container.Resolve<AIBrainsContext>();
+            _inputService              = _container.Resolve<IInputService>();
+            _entitiesLifeContext       = _container.Resolve<EntitiesLifeContext>();
+            _stageProviderService      = _container.Resolve<StageProviderService>();
+            _walletService             = _container.Resolve<WalletService>();
+            _playerDataProvider        = _container.Resolve<PlayerDataProvider>();
+            _configsProviderService    = _container.Resolve<ConfigsProviderService>();
+            _coroutinesPerformer       = _container.Resolve<ICoroutinesPerformer>();
+            _mainHeroHolderService     = _container.Resolve<MainHeroHolderService>();
+            _deployablePurchaseService = _container.Resolve<DeployablePurchaseService>();
         }
 
         public StateMachineBrain CreateTowerBrain (Entity entity)
@@ -64,12 +67,11 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.AI
             PointAndClickExplosionState explosionState  = new PointAndClickExplosionState(entity, _inputService);
             DeployState deployState =
                 new DeployState(
-                entity,
-                _inputService,
-                _walletService,
-                _playerDataProvider,
-                _configsProviderService.GetConfig<DeployableCostConfig>(),
-                _coroutinesPerformer);
+                    entity,
+                    _inputService,
+                    _playerDataProvider,
+                    _coroutinesPerformer,
+                    _deployablePurchaseService);
 
             AIStateMachine stateMachine = new AIStateMachine();
 
