@@ -24,20 +24,22 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.MainHero
     {
         private readonly DIContainer _container;
 
-        private readonly EntitiesFactory          _entitiesFactory;
-        private readonly BrainsFactory            _brainsFactory;
-        private readonly ConfigsProviderService   _configsProviderService;
-        private readonly EntitiesLifeContext      _entitiesLifeContext;
-        private readonly StatsUpgradeService      _statsUpgradeService;
+        private readonly EntitiesFactory        _entitiesFactory;
+        private readonly BrainsFactory          _brainsFactory;
+        private readonly ConfigsProviderService _configsProviderService;
+        private readonly EntitiesLifeContext    _entitiesLifeContext;
+        private readonly StatsUpgradeService    _statsUpgradeService;
+        private readonly StageProviderService   _stageProviderService;
 
         public MainHeroFactory(DIContainer container)
         {
-            _container                     = container;
-            _entitiesFactory               = _container.Resolve<EntitiesFactory>();
-            _brainsFactory                 = _container.Resolve<BrainsFactory>();
-            _configsProviderService        = _container.Resolve<ConfigsProviderService>();
-            _entitiesLifeContext           = _container.Resolve<EntitiesLifeContext>();
-            _statsUpgradeService           = _container.Resolve<StatsUpgradeService>();
+            _container              = container;
+            _entitiesFactory        = _container.Resolve<EntitiesFactory>();
+            _brainsFactory          = _container.Resolve<BrainsFactory>();
+            _configsProviderService = _container.Resolve<ConfigsProviderService>();
+            _entitiesLifeContext    = _container.Resolve<EntitiesLifeContext>();
+            _statsUpgradeService    = _container.Resolve<StatsUpgradeService>();
+            _stageProviderService   = _container.Resolve<StageProviderService>();
         }
 
         public Entity Create(Vector3 position, int levelNumber)
@@ -62,7 +64,7 @@ namespace Assets._Project.Develop.Runtime.Gameplay.Features.MainHero
             entity
                 .AddSystem(new ExplosionDamageMultiplierApplySystem())
                 .AddSystem(new HealOnWaveStartSystem(_container.Resolve<StageProviderService>()))
-                .AddSystem(new DamageToSpawnedEnemiesSystem(_entitiesLifeContext));
+                .AddSystem(new DamageToSpawnedEnemiesSystem(_entitiesLifeContext, _stageProviderService, 4));
 
             _entitiesLifeContext.Add(entity);
 
